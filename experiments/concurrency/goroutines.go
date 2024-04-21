@@ -19,6 +19,19 @@ func returnType(url string) {
 	fmt.Printf("%s -> %s\n", url, ctype)
 }
 
+func returnTypeChannel(url string, out chan string) {
+	resp, err := http.Get(url)
+	if err != nil {
+		out <- fmt.Sprintf("%s -> error: %s", url, err)
+		return
+	}
+
+	defer resp.Body.Close()
+	ctype := resp.Header.Get("content-type")
+	out <- fmt.Sprintf("%s -> %s", url, ctype)
+
+}
+
 func siteSerial(urls []string) {
 	for _, url := range urls {
 		returnType(url)
@@ -37,6 +50,19 @@ func siteConcurrent(urls []string) {
 	wg.Wait()
 }
 
+func siteConcurrentChannels(urls []string) {
+	ch := make(chan string)
+	for _, url := range urls {
+		go returnTypeChannel(url, ch)
+	}
+
+	for range urls {
+		out := <-ch
+		fmt.Println(out)
+	}
+
+}
+
 func main() {
 	urls := []string{
 		"https://golang.org",
@@ -52,6 +78,11 @@ func main() {
 	fmt.Println("Concurrent version:")
 	start = time.Now()
 	siteConcurrent(urls)
+	fmt.Println(time.Since(start))
+
+	fmt.Println("Concurrent version using channels:")
+	start = time.Now()
+	siteConcurrentChannels(urls)
 	fmt.Println(time.Since(start))
 
 }
