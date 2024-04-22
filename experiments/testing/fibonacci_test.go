@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/stretchr/testify/require"
 	"testing"
 )
 
@@ -39,4 +40,9 @@ func TestFibonacciByFormula(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestFibonaccyByFormulaTestify(t *testing.T) {
+	val := fibonacciByFormula(25)
+	require.EqualValues(t, val, 75025, "Wrong value.")
 }
