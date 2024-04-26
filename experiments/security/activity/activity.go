@@ -2,7 +2,7 @@ package main
 
 import (
 	"encoding/json"
-	"errors"
+	"fmt"
 	"io"
 	"log"
 	"os"
@@ -16,20 +16,34 @@ type Activity struct {
 	Description string    `json:"description"`
 }
 
+func (a *Activity) Validate() error {
+	if len(a.User) == 0 {
+		return fmt.Errorf("invalid user, length must be greater than 0")
+	}
+
+	if a.StartTime.After(a.EndTime) {
+		return fmt.Errorf("start time must be before end time")
+	}
+
+	return nil
+
+}
+
 func processActivity(r io.Reader) error {
 	var act Activity
+	maxSize := int64(10 * 1024)
 
-	lr := io.LimitReader(r, 10*1024)
+	lr := io.LimitReader(r, maxSize)
 	dec := json.NewDecoder(lr)
 	if err := dec.Decode(&act); err != nil {
 		return err
 	}
 
-	if act.StartTime.After(act.EndTime) {
-		return errors.New("start time must be before end time")
+	if err := act.Validate(); err != nil {
+		return err
 	}
-	log.Printf("activity: %#v", act)
 
+	log.Printf("activity: %#v", act)
 	return nil
 }
 
