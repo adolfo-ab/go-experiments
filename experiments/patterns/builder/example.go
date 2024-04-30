@@ -19,7 +19,7 @@ func main() {
 	if notif, err := nb.Build(); err != nil {
 		fmt.Println("Error:", err)
 	} else {
-		fmt.Printf("Notification: %+v\n", notif)
+		fmt.Printf("Notification: %+v", notif)
 	}
 
 }

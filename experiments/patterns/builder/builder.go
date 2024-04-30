@@ -1,5 +1,7 @@
 package main
 
+import "fmt"
+
 type NotificationBuilder struct {
 	Title    string
 	Subtitle string
@@ -43,6 +45,14 @@ func (nb *NotificationBuilder) SetNotType(notType string) {
 }
 
 func (nb *NotificationBuilder) Build() (*Notification, error) {
+	if nb.Title == "" || nb.Message == "" {
+		return nil, fmt.Errorf("notifications must have a title and a message")
+	}
+
+	if nb.Priority < 0 || nb.Priority > 99 {
+		return nil, fmt.Errorf("priority %d is out of range, must be in the range 0-99", nb.Priority)
+	}
+
 	return &Notification{
 		title:    nb.Title,
 		subtitle: nb.Subtitle,
